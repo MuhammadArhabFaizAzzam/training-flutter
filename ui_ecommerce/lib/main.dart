@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/login_page.dart';
+import 'pages/home_page.dart';
+import 'pages/list_chat.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,8 +17,17 @@ class MyApp extends StatelessWidget {
       title: 'Ecommerce UI',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
       ),
-      home: const LoginPage(),
+      initialRoute: '/login',
+      routes: {
+        // Halaman login (halaman pertama)
+        '/login': (context) => const LoginPage(),
+        // Halaman utama (dipakai untuk kembali ke home)
+        '/': (context) => const HomePage(),
+        // Halaman daftar chat
+        '/list-chat': (context) => const ChatListPage(),
+      },
     );
   }
 }

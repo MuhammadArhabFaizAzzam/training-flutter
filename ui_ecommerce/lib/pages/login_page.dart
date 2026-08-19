@@ -167,6 +167,7 @@ class _LoginPageState extends State<LoginPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Login berhasil!')),
             );
+            Navigator.pushReplacementNamed(context, '/');
           }
         },
         icon: const Icon(Icons.login_rounded, size: 20), // Icon di tombol
