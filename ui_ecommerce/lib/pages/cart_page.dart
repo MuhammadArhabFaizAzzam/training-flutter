@@ -2,42 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:ui_ecommerce/widgets/cart_app_bar.dart';
 import 'package:ui_ecommerce/widgets/cart_bottom_navbar.dart';
 import 'package:ui_ecommerce/widgets/cart_item_samples.dart';
-import 'package:ui_ecommerce/models/cart_model.dart';
 
-class CartPage extends StatefulWidget {
-  const CartPage({super.key});
+class CartPage extends StatelessWidget {
+  final VoidCallback? onBackToHome;
 
-  @override
-  State<CartPage> createState() => _CartPageState();
-}
-
-class _CartPageState extends State<CartPage> {
-  @override
-  void initState() {
-    super.initState();
-    CartModel().addListener(_onCartChanged);
-  }
-
-  @override
-  void dispose() {
-    CartModel().removeListener(_onCartChanged);
-    super.dispose();
-  }
-
-  void _onCartChanged() {
-    if (mounted) setState(() {});
-  }
+  const CartPage({
+    super.key,
+    this.onBackToHome,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE5E5E5),
-      appBar: const CartAppBar(),
-      body: SingleChildScrollView(
+      backgroundColor: const Color(0xFFF7F7FA),
+      appBar: CartAppBar(onBackToHome: onBackToHome),
+      body: const SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            const CartItemSamples(),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
+            CartItemSamples(),
+            SizedBox(height: 30),
           ],
         ),
       ),
@@ -45,3 +30,4 @@ class _CartPageState extends State<CartPage> {
     );
   }
 }
+

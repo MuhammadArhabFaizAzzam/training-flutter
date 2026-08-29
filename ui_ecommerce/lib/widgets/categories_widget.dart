@@ -12,91 +12,116 @@ class CategoriesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> categories = [
-      'Semua',
-      'Outfit',
-      'Makanan',
-      'Skincare',
-      'Elektronik',
+    final List<Map<String, dynamic>> categoryItems = [
+      {
+        'title': 'Semua',
+        'icon': Icons.grid_view_rounded,
+        'color': const Color(0xFF4C53A5),
+      },
+      {
+        'title': 'Sepatu',
+        'icon': Icons.roller_skating_outlined,
+        'color': const Color(0xFFE65100),
+      },
+      {
+        'title': 'Outfit',
+        'icon': Icons.checkroom_rounded,
+        'color': const Color(0xFF1565C0),
+      },
+      {
+        'title': 'Elektronik',
+        'icon': Icons.devices_other_rounded,
+        'color': const Color(0xFF2E7D32),
+      },
+      {
+        'title': 'Skincare',
+        'icon': Icons.face_retouching_natural_rounded,
+        'color': const Color(0xFFC2185B),
+      },
+      {
+        'title': 'Makanan',
+        'icon': Icons.cake_outlined,
+        'color': const Color(0xFF795548),
+      },
+      {
+        'title': 'Aksesoris',
+        'icon': Icons.watch_outlined,
+        'color': const Color(0xFF6A1B9A),
+      },
     ];
 
-    final List<String> categoriesImages = [
-      'assets/images/homepages/outfit.jpg',
-      'assets/images/homepages/outfit.jpg',
-      'assets/images/homepages/makanan.jpg',
-      'assets/images/homepages/skincare.jpg',
-      'assets/images/homepages/elecronic.jpg',
-    ];
+    return SizedBox(
+      height: 48,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        scrollDirection: Axis.horizontal,
+        itemCount: categoryItems.length,
+        itemBuilder: (context, index) {
+          final item = categoryItems[index];
+          final String title = item['title'] as String;
+          final bool isSelected = selectedCategory == title;
+          final IconData iconData = item['icon'] as IconData;
+          final Color categoryColor = item['color'] as Color;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (int i = 0; i < categories.length; i++)
-            GestureDetector(
-              onTap: () {
-                onCategorySelected(categories[i]);
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                decoration: BoxDecoration(
-                  color: selectedCategory == categories[i]
-                      ? const Color(0xFF4C53A5)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.2),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+          return GestureDetector(
+            onTap: () => onCategorySelected(title),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeInOut,
+              margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                gradient: isSelected
+                    ? LinearGradient(
+                        colors: [
+                          categoryColor,
+                          categoryColor.withValues(alpha: 0.75),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                color: isSelected ? null : Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.transparent
+                      : Colors.grey.withValues(alpha: 0.15),
+                  width: 1,
                 ),
-                child: Row(
-                  children: [
-                    if (i > 0)
-                      Image.asset(
-                        categoriesImages[i],
-                        width: 40,
-                        height: 40,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: selectedCategory == categories[i]
-                                  ? Colors.white.withValues(alpha: 0.3)
-                                  : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.category,
-                              color: selectedCategory == categories[i]
-                                  ? Colors.white
-                                  : Colors.grey,
-                              size: 25,
-                            ),
-                          );
-                        },
-                      ),
-                    if (i > 0) const SizedBox(width: 10),
-                    Text(
-                      categories[i],
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        color: selectedCategory == categories[i]
-                            ? Colors.white
-                            : const Color(0xFF4C53A5),
-                      ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isSelected
+                        ? categoryColor.withValues(alpha: 0.35)
+                        : Colors.black.withValues(alpha: 0.04),
+                    blurRadius: isSelected ? 10 : 4,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    iconData,
+                    size: 17,
+                    color: isSelected ? Colors.white : categoryColor,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.5,
+                      color: isSelected ? Colors.white : const Color(0xFF1A1D2E),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -1,28 +1,18 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:ui_ecommerce/models/product_model.dart';
 
-class FavoriteModel {
+class FavoriteModel extends ChangeNotifier {
   static final FavoriteModel _instance = FavoriteModel._internal();
   factory FavoriteModel() => _instance;
-  FavoriteModel._internal();
+  FavoriteModel._internal() {
+    // Tambah default contoh favorit (harus sesuai nama produk di ProductData)
+    _favoriteNames.add('Brownies Fudgy Dark Chocolate Almond');
+    _favoriteNames.add('Hoodie Oversize Streetwear Essential');
+  }
 
   final Set<String> _favoriteNames = {};
-  final List<VoidCallback> _listeners = [];
 
-  Set<String> get favoriteNames => _favoriteNames;
-
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-  }
-
-  void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-  }
-
-  void _notifyListeners() {
-    for (var listener in _listeners) {
-      listener();
-    }
-  }
+  Set<String> get favoriteNames => Set.unmodifiable(_favoriteNames);
 
   bool isFavorite(String name) {
     return _favoriteNames.contains(name);
@@ -34,6 +24,26 @@ class FavoriteModel {
     } else {
       _favoriteNames.add(name);
     }
-    _notifyListeners();
+    notifyListeners();
+  }
+
+  void removeFavorite(String name) {
+    if (_favoriteNames.remove(name)) {
+      notifyListeners();
+    }
+  }
+
+  void clearFavorites() {
+    _favoriteNames.clear();
+    notifyListeners();
+  }
+
+  int get count => _favoriteNames.length;
+
+  List<ProductModel> get favoriteProducts {
+    return ProductData.products
+        .where((product) => _favoriteNames.contains(product.name))
+        .toList();
   }
 }
+
