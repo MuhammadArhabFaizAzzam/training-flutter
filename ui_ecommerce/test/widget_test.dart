@@ -1,30 +1,52 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ui_ecommerce/main.dart';
+import 'package:ui_ecommerce/models/cart_model.dart';
+import 'package:ui_ecommerce/models/favorite_model.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App membuka halaman login saat pertama dijalankan', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Masuk ke Akun'), findsOneWidget);
+    expect(find.text('Masuk Sekarang'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  test('CartModel menghitung subtotal & format rupiah dengan benar', () {
+    final cart = CartModel();
+    cart.clearCart();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    cart.addItem(name: 'Produk Uji', price: 'Rp 100.000', image: '');
+    cart.addItem(name: 'Produk Uji 2', price: 'Rp 50.000', image: '');
+
+    expect(cart.totalItemCount, 2);
+    expect(cart.subtotalPrice, 150000);
+    expect(cart.formattedSubtotal, 'Rp 150.000');
+  });
+
+  test('Kupon PROMO50 memberikan diskon 50%', () {
+    final cart = CartModel();
+    cart.clearCart();
+
+    cart.addItem(name: 'Produk Uji', price: 'Rp 200.000', image: '');
+    expect(cart.applyCoupon('promo50'), isTrue);
+    expect(cart.discountPercent, 0.5);
+    expect(cart.finalTotalPrice, 100000);
+
+    cart.removeCoupon();
+    expect(cart.couponCode, isNull);
+  });
+
+  test('Kupon tidak valid ditolak', () {
+    final cart = CartModel();
+    expect(cart.applyCoupon('KODENGASAL'), isFalse);
+  });
+
+  test('Favorit default konsisten dengan daftar produk', () {
+    final fav = FavoriteModel();
+    expect(fav.favoriteProducts.length, fav.count);
   });
 }

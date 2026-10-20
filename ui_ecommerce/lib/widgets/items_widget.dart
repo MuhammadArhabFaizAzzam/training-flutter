@@ -45,78 +45,74 @@ class ItemsWidget extends StatelessWidget {
     }).toList();
 
     if (filteredProducts.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-        alignment: Alignment.center,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF4C53A5).withValues(alpha: 0.1),
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  ),
-                ],
+      return SliverToBoxAdapter(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+          alignment: Alignment.center,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF4C53A5).withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.search_off_rounded,
+                  size: 58,
+                  color: Color(0xFF4C53A5),
+                ),
               ),
-              child: const Icon(
-                Icons.search_off_rounded,
-                size: 58,
-                color: Color(0xFF4C53A5),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              cleanQuery.isNotEmpty
-                  ? 'Tidak ditemukan untuk "$searchQuery"'
-                  : 'Belum ada produk di $selectedCategory',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1D2E),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF4C53A5).withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Coba: "sepatu", "hoodie", "kue", "smartwatch"',
+              const SizedBox(height: 20),
+              Text(
+                cleanQuery.isNotEmpty
+                    ? 'Tidak ditemukan untuk "$searchQuery"'
+                    : 'Belum ada produk di $selectedCategory',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1D2E),
+                ),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Color(0xFF4C53A5)),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4C53A5).withValues(alpha: 0.07),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Coba: "sepatu", "hoodie", "kue", "smartwatch"',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Color(0xFF4C53A5)),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return ListenableBuilder(
-      listenable: FavoriteModel(),
-      builder: (context, _) {
-        final favModel = FavoriteModel();
-        return GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.57,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 14,
-          ),
-          itemCount: filteredProducts.length,
-          itemBuilder: (context, index) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.57,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 14,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
             final product = filteredProducts[index];
-            final bool isFav = favModel.isFavorite(product.name);
 
             return GestureDetector(
               onTap: () {
@@ -229,32 +225,7 @@ class ItemsWidget extends StatelessWidget {
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: GestureDetector(
-                            onTap: () => favModel.toggle(product.name),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.all(7),
-                              decoration: BoxDecoration(
-                                color: isFav
-                                    ? Colors.red.shade50
-                                    : Colors.white.withValues(alpha: 0.9),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 6,
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                isFav
-                                    ? Icons.favorite_rounded
-                                    : Icons.favorite_border_rounded,
-                                color: isFav ? Colors.redAccent : Colors.grey[500],
-                                size: 17,
-                              ),
-                            ),
-                          ),
+                          child: _FavoriteButton(productName: product.name),
                         ),
                       ],
                     ),
@@ -285,9 +256,9 @@ class ItemsWidget extends StatelessWidget {
                                       ),
                                       borderRadius: BorderRadius.circular(5),
                                     ),
-                                    child: Row(
+                                    child: const Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: const [
+                                      children: [
                                         Icon(
                                           Icons.verified_rounded,
                                           color: Colors.white,
@@ -478,6 +449,48 @@ class ItemsWidget extends StatelessWidget {
               ),
             );
           },
+          childCount: filteredProducts.length,
+        ),
+      ),
+    );
+  }
+}
+
+class _FavoriteButton extends StatelessWidget {
+  final String productName;
+
+  const _FavoriteButton({required this.productName});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: FavoriteModel(),
+      builder: (context, _) {
+        final favModel = FavoriteModel();
+        final bool isFav = favModel.isFavorite(productName);
+        return GestureDetector(
+          onTap: () => favModel.toggle(productName),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: isFav
+                  ? Colors.red.shade50
+                  : Colors.white.withValues(alpha: 0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: Icon(
+              isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: isFav ? Colors.redAccent : Colors.grey[500],
+              size: 17,
+            ),
+          ),
         );
       },
     );

@@ -31,19 +31,6 @@ class _HomePageContentState extends State<HomePageContent> {
     (label: 'Kopi', query: 'kopi'),
   ];
 
-  // Label tampil di chip (dengan emoji), query dipakai langsung saat diklik
-  final List<({String label, String query})> _popularSearches = const [
-    (label: '🔥 Nike', query: 'Nike'),
-    (label: '👟 Sepatu', query: 'Sepatu'),
-    (label: '👕 Hoodie', query: 'Hoodie'),
-    (label: '⌚ Smartwatch', query: 'Smartwatch'),
-    (label: '✨ Serum', query: 'Serum'),
-    (label: '🍫 Brownies', query: 'Brownies'),
-    (label: '📷 Kamera', query: 'Kamera'),
-    (label: '👜 Tas', query: 'Tas'),
-    (label: '☕ Kopi', query: 'Kopi'),
-  ];
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -137,306 +124,246 @@ class _HomePageContentState extends State<HomePageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return CustomScrollView(
       physics: const ClampingScrollPhysics(),
-      children: [
-        HomeAppBar(onCartTap: widget.onGoToCart),
-        Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFFF0F2FF),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 18),
-              // ── Search Bar ──────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF4C53A5).withValues(alpha: 0.12),
-                        spreadRadius: 0,
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+      slivers: [
+        SliverToBoxAdapter(
+          child: HomeAppBar(onCartTap: widget.onGoToCart),
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFF0F2FF),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 18),
+                // ── Search Bar ──────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF4C53A5).withValues(alpha: 0.12),
+                          spreadRadius: 0,
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4C53A5).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.search_rounded,
+                            size: 20,
+                            color: Color(0xFF4C53A5),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              hintText: 'Cari produk favorit kamu...',
+                              hintStyle: TextStyle(
+                                color: Color(0xFFADB5D6),
+                                fontSize: 14,
+                              ),
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                              filled: false,
+                            ),
+                            onChanged: (value) => setState(() {}),
+                          ),
+                        ),
+                        if (_searchController.text.isNotEmpty)
+                          IconButton(
+                            icon: Icon(
+                              Icons.cancel_rounded,
+                              color: Colors.grey[400],
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() => _searchController.clear());
+                            },
+                          ),
+                        Container(
+                          height: 54,
+                          width: 54,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF4C53A5), Color(0xFF6B7CDA)],
+                            ),
+                            borderRadius: BorderRadius.horizontal(
+                              right: Radius.circular(28),
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.camera_alt_outlined,
+                              size: 22,
+                              color: Colors.white,
+                            ),
+                            onPressed: () async {
+                              final XFile? picked = await ImagePicker().pickImage(
+                                source: ImageSource.gallery,
+                                maxWidth: 800,
+                                maxHeight: 800,
+                              );
+                              if (picked != null) {
+                                _showCategorySelectionDialog();
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                ),
+                const SizedBox(height: 18),
+
+                // ── Promo Banner ─────────────────────────────
+                PromoBannerSlider(
+                  onCategorySelected: (cat) {
+                    setState(() => _selectedCategory = cat);
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // ── Section: Kategori ────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      const SizedBox(width: 16),
                       Container(
-                        padding: const EdgeInsets.all(6),
+                        width: 4,
+                        height: 20,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4C53A5).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.search_rounded,
-                          size: 20,
-                          color: Color(0xFF4C53A5),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFF4C53A5), Color(0xFF6B7CDA)],
+                          ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _searchController,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            hintText: 'Cari produk favorit kamu...',
-                            hintStyle: TextStyle(
-                              color: Color(0xFFADB5D6),
-                              fontSize: 14,
-                            ),
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                            filled: false,
-                          ),
-                          onChanged: (value) => setState(() {}),
-                        ),
-                      ),
-                      if (_searchController.text.isNotEmpty)
-                        IconButton(
-                          icon: Icon(
-                            Icons.cancel_rounded,
-                            color: Colors.grey[400],
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            setState(() => _searchController.clear());
-                          },
-                        ),
-                      Container(
-                        height: 54,
-                        width: 54,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF4C53A5), Color(0xFF6B7CDA)],
-                          ),
-                          borderRadius: BorderRadius.horizontal(
-                            right: Radius.circular(28),
-                          ),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.camera_alt_outlined,
-                            size: 22,
-                            color: Colors.white,
-                          ),
-                          onPressed: () async {
-                            final XFile? picked = await ImagePicker().pickImage(
-                              source: ImageSource.gallery,
-                              maxWidth: 800,
-                              maxHeight: 800,
-                            );
-                            if (picked != null) {
-                              _showCategorySelectionDialog();
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // ── Popular Chips ────────────────────────────
-              SizedBox(
-                height: 34,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _popularSearches.length,
-                  itemBuilder: (context, index) {
-                    final item = _popularSearches[index];
-                    final isCurrent =
-                        _searchController.text.trim().toLowerCase() ==
-                            item.query.toLowerCase();
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _searchController.text = item.query;
-                            _selectedCategory = 'Semua';
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(20),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: isCurrent
-                                ? const LinearGradient(
-                                    colors: [
-                                      Color(0xFF4C53A5),
-                                      Color(0xFF6B7CDA),
-                                    ],
-                                  )
-                                : null,
-                            color: isCurrent ? null : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isCurrent
-                                    ? const Color(0xFF4C53A5).withValues(alpha: 0.3)
-                                    : Colors.black.withValues(alpha: 0.05),
-                                blurRadius: isCurrent ? 8 : 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            item.label,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
-                              color: isCurrent
-                                  ? Colors.white
-                                  : const Color(0xFF4C53A5),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // ── Promo Banner ─────────────────────────────
-              PromoBannerSlider(
-                onCategorySelected: (cat) {
-                  setState(() => _selectedCategory = cat);
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // ── Section: Kategori ────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFF4C53A5), Color(0xFF6B7CDA)],
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Kategori Pilihan',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1D2E),
-                      ),
-                    ),
-                    const Spacer(),
-                    if (_selectedCategory != 'Semua' ||
-                        _searchController.text.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedCategory = 'Semua';
-                            _searchController.clear();
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4C53A5).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'Reset',
-                            style: TextStyle(
-                              color: Color(0xFF4C53A5),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              CategoriesWidget(
-                selectedCategory: _selectedCategory,
-                onCategorySelected: (category) {
-                  setState(() => _selectedCategory = category);
-                },
-              ),
-              const SizedBox(height: 22),
-
-              // ── Section: Produk ──────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFFFF6B35), Color(0xFFFF9A62)],
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        _searchController.text.isNotEmpty
-                            ? 'Hasil: "${_searchController.text}"'
-                            : (_selectedCategory == 'Semua'
-                                ? 'Rekomendasi Produk'
-                                : '📦 $_selectedCategory'),
-                        style: const TextStyle(
+                      const Text(
+                        'Kategori Pilihan',
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF1A1D2E),
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                      const Spacer(),
+                      if (_selectedCategory != 'Semua' ||
+                          _searchController.text.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = 'Semua';
+                              _searchController.clear();
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4C53A5).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'Reset',
+                              style: TextStyle(
+                                color: Color(0xFF4C53A5),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              ItemsWidget(
-                searchQuery: _searchController.text,
-                selectedCategory: _selectedCategory,
-              ),
-              const SizedBox(height: 30),
-            ],
+                const SizedBox(height: 10),
+                CategoriesWidget(
+                  selectedCategory: _selectedCategory,
+                  onCategorySelected: (category) {
+                    setState(() => _selectedCategory = category);
+                  },
+                ),
+                const SizedBox(height: 22),
+
+                // ── Section: Produk ──────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFFFF6B35), Color(0xFFFF9A62)],
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _searchController.text.isNotEmpty
+                              ? 'Hasil: "${_searchController.text}"'
+                              : (_selectedCategory == 'Semua'
+                                  ? 'Rekomendasi Produk'
+                                  : '📦 $_selectedCategory'),
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1D2E),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
+        ),
+        ItemsWidget(
+          searchQuery: _searchController.text,
+          selectedCategory: _selectedCategory,
+        ),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 30),
         ),
       ],
     );
   }
+
 }
 
 class HomePage extends StatefulWidget {
